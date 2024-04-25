@@ -118,7 +118,7 @@ fun ContactUsScreen(navController: NavController) {
                         onValueChange = { text ->
                             message = text
                         },
-                        placeholder = "Enter message",
+                        placeholder = "Enter full message",
                         keyboardType = KeyboardType.Text,
                     )
 
