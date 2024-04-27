@@ -22,33 +22,51 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.tripplanner.R
 import com.tripplanner.routing.Screen
+import com.tripplanner.ui.TripPreference.TripPreference
 import com.tripplanner.ui.theme.*
-import com.tripplanner.utils.OutlineFormField
+import com.tripplanner.utils.TripField
 import com.tripplanner.utils.RoundedButton
+import com.tripplanner.utils.isValidEmail
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
+    val preference = remember {
+        TripPreference(context)
+    }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val db = Firebase.firestore
+    var isUser by remember { mutableStateOf(false) }
+    val firebaseAuth = FirebaseAuth.getInstance()
     TripPlannerAppTheme {
         Scaffold {
             Column(
-                modifier = Modifier.fillMaxSize().background(green).padding(10.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(green)
+                    .padding(10.dp)
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_trip_planner),
                     contentDescription = "",
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxWidth().height(300.dp).align(Alignment.CenterHorizontally)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .align(Alignment.CenterHorizontally)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
@@ -65,7 +83,7 @@ fun LoginScreen(navController: NavController) {
                     style = TextStyle(color = white)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                OutlineFormField(
+                TripField(
                     value = email,
                     backgroundColor = white,
                     onValueChange = { text ->
@@ -82,7 +100,7 @@ fun LoginScreen(navController: NavController) {
                     style = TextStyle(color = white)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                OutlineFormField(
+                TripField(
                     value = password,
                     backgroundColor = white,
                     onValueChange = { text ->
@@ -103,61 +121,45 @@ fun LoginScreen(navController: NavController) {
                         textColor = green,
                         onClick = {
                             if (email.isNotEmpty()) {
-                                if (password.isNotEmpty()) {
-                                    db.collection("users")
-                                        .get()
-                                        .addOnSuccessListener { result ->
-                                            if (result.isEmpty) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Invalid user.",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                                return@addOnSuccessListener
-                                            } else {
-                                                for (document in result) {
-                                                    Log.e(
-                                                        "TAG",
-                                                        "setOnClick: $document"
+                                if (!isValidEmail(email.toString())) {
+                                    if (password.isNotEmpty()) {
+                                        isUser = true
+                                        firebaseAuth.signInWithEmailAndPassword(email.lowercase(), password)
+                                            .addOnCompleteListener { task ->
+                                                if (task.isSuccessful) {
+                                                    preference.saveData(
+                                                        "isLogin", true
                                                     )
-                                                    if (document.data["email"] == email &&
-                                                        document.data["password"] == password
+                                                    Toast.makeText(
+                                                        context, "Login successfully.", Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    navController.navigate(
+                                                        Screen.MainScreen.route
                                                     ) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Login successfully.",
-                                                            Toast.LENGTH_LONG
-                                                        ).show()
-                                                        navController.navigate(
-                                                            Screen.MainScreen.route
-                                                        ) {
-                                                            popUpTo(Screen.LoginScreen.route) {
-                                                                inclusive = true
-                                                            }
+                                                        popUpTo(Screen.LoginScreen.route) {
+                                                            inclusive = true
                                                         }
-                                                    } else {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Invalid user.",
-                                                            Toast.LENGTH_LONG
-                                                        ).show()
-                                                        return@addOnSuccessListener
                                                     }
+                                                    isUser = false
+                                                } else {
+                                                    Toast.makeText(
+                                                        context, task.exception?.message.toString(), Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    isUser = false
                                                 }
                                             }
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Please enter password.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
 
-                                        }
-                                        .addOnFailureListener { exception ->
-                                            Toast.makeText(
-                                                context,
-                                                exception.message.toString(),
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
+                                    }
                                 } else {
                                     Toast.makeText(
                                         context,
-                                        "Please enter password.",
+                                        "Please enter valid email.",
                                         Toast.LENGTH_LONG
                                     ).show()
 
@@ -178,7 +180,9 @@ fun LoginScreen(navController: NavController) {
 
             }
             Column(
-                modifier = Modifier.fillMaxSize().padding(bottom = 20.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 20.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Row(
@@ -202,7 +206,21 @@ fun LoginScreen(navController: NavController) {
                 }
                 Spacer(modifier = Modifier.height(10.dp))
             }
-
+            if (isUser) {
+                Dialog(
+                    onDismissRequest = { },
+                    DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .background(white, shape = RoundedCornerShape(8.dp))
+                    ) {
+                        CircularProgressIndicator(color = green)
+                    }
+                }
+            }
 
         }
     }

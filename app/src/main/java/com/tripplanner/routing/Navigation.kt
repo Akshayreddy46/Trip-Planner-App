@@ -34,8 +34,13 @@ fun Navigation() {
         composable(route = Screen.MainScreen.route) {
             MainScreen(navController = navController)
         }
-        composable(route = Screen.Detail.route) {
-            DetailScreen(navController = navController)
+        composable(route = Screen.Detail.route+ "/{name}"+"/{index}") {
+            val name = it.arguments?.getString("name")
+            val index = it.arguments?.getString("index")
+            if(name!=null && index!=null) {
+                DetailScreen(navController = navController,name = name,index=index)
+            }
+
         }
         composable(route = Screen.SearchList.route) {
             SearchScreen(navController = navController)

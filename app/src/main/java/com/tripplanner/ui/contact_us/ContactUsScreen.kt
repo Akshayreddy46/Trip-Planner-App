@@ -22,8 +22,9 @@ import com.tripplanner.ui.theme.TripPlannerAppTheme
 import com.tripplanner.ui.theme.black
 import com.tripplanner.ui.theme.green
 import com.tripplanner.ui.theme.white
-import com.tripplanner.utils.OutlineFormField
+import com.tripplanner.utils.TripField
 import com.tripplanner.utils.RoundedButton
+import com.tripplanner.utils.isValidEmail
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -71,14 +72,17 @@ fun ContactUsScreen(navController: NavController) {
                     )
                 )
 
-                Column(modifier = Modifier.fillMaxSize().background(color = white).padding(10.dp)) {
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = white)
+                    .padding(10.dp)) {
                     Text(
                         "Name",
-                        modifier =Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         style = TextStyle(color = black)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlineFormField(
+                    TripField(
                         value = name,
                         backgroundColor = black,
                         onValueChange = { text ->
@@ -91,11 +95,11 @@ fun ContactUsScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         "Email",
-                        modifier =Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         style = TextStyle(color = black)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlineFormField(
+                    TripField(
                         value = email,
                         backgroundColor = black,
                         onValueChange = { text ->
@@ -108,23 +112,25 @@ fun ContactUsScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         "Message",
-                        modifier =Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         style = TextStyle(color = black)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlineFormField(
+                    TripField(
                         value = message,
                         backgroundColor = black,
                         onValueChange = { text ->
                             message = text
                         },
-                        placeholder = "Enter full message",
+                        placeholder = "Enter message",
                         keyboardType = KeyboardType.Text,
                     )
 
                     Spacer(modifier = Modifier.height(30.dp))
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(bottom = 20.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 20.dp),
                         verticalArrangement = Arrangement.Bottom
                     ) {
 
@@ -136,17 +142,25 @@ fun ContactUsScreen(navController: NavController) {
                                 onClick = {
                                     if (name.isNotEmpty()) {
                                         if (email.isNotEmpty()) {
-                                            if (message.isNotEmpty()) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Successfully submitted..",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                                navController.navigateUp()
+                                            if (!isValidEmail(email.trim())) {
+                                                if (message.isNotEmpty()) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Successfully submitted..",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                    navController.navigateUp()
+                                                } else {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Please enter message.",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
                                             } else {
                                                 Toast.makeText(
                                                     context,
-                                                    "Please enter message.",
+                                                    "Please enter valid email.",
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                             }

@@ -36,7 +36,7 @@ import com.tripplanner.ui.theme.TripPlannerAppTheme
 import com.tripplanner.ui.theme.black
 import com.tripplanner.ui.theme.green
 import com.tripplanner.ui.theme.white
-import com.tripplanner.utils.OutlineFormField
+import com.tripplanner.utils.TripField
 import com.tripplanner.utils.RoundedButton
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -89,7 +89,7 @@ fun ProfileScreen(navController: NavController) {
                         style = TextStyle(color = black)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlineFormField(
+                    TripField(
                         value = name,
                         backgroundColor = black,
                         onValueChange = { text ->
@@ -106,7 +106,7 @@ fun ProfileScreen(navController: NavController) {
                         style = TextStyle(color = black)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlineFormField(
+                    TripField(
                         value = email,
                         backgroundColor = black,
                         onValueChange = { text ->

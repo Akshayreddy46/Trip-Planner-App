@@ -36,13 +36,16 @@ import com.tripplanner.ui.theme.black
 import com.tripplanner.ui.theme.green
 import com.tripplanner.ui.theme.white
 import com.tripplanner.utils.RoundedButton
+import com.tripplanner.utils.getData
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DetailScreen(navController: NavController) {
+fun DetailScreen(navController: NavController, name:String,index:String) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val data = getData(index)
+
     TripPlannerAppTheme {
         Scaffold {
             Column(
@@ -50,6 +53,7 @@ fun DetailScreen(navController: NavController) {
                     .background(color = green)
                     .fillMaxSize()
                     .padding(top = 40.dp)
+                    .verticalScroll(scrollState)
             ) {
                 SmallTopAppBar(
                     title = {
@@ -72,25 +76,6 @@ fun DetailScreen(navController: NavController) {
                                 contentDescription = "Back")
                         }
                     },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                            }
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_contact_us),
-                                contentDescription = "Image",
-                                contentScale = ContentScale.Fit,
-                                colorFilter = ColorFilter.tint(Color.White),
-                                modifier = Modifier
-                                    .width(35.dp)
-                                    .height(35.dp)
-                                    .clickable {
-                                        navController.navigate(Screen.ContactUsScreen.route)
-                                    }
-                            )
-                        }
-                    },
                     colors = TopAppBarDefaults.smallTopAppBarColors(
                         containerColor = green,
                         titleContentColor = Color.White
@@ -108,7 +93,7 @@ fun DetailScreen(navController: NavController) {
                     )
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "Jaipur to Jaisalmar",
+                        name,
                         fontSize = 14.sp,
                         color = Color.Black,
                         modifier = Modifier
@@ -116,39 +101,7 @@ fun DetailScreen(navController: NavController) {
                     )
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "Distance : 420 km",
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        "Budget : 1000/- per each" ,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        "Total Member : 5" ,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        "Vehicle : Traveller" ,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        "Total Budget : 5000/-" ,
+                        data,
                         fontSize = 14.sp,
                         color = Color.Black,
                         modifier = Modifier
@@ -182,3 +135,4 @@ fun DetailScreen(navController: NavController) {
     }
 
 }
+

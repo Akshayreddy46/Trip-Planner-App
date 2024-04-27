@@ -10,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.tripplanner.R
 import com.tripplanner.routing.Screen
+import com.tripplanner.ui.TripPreference.TripPreference
 import com.tripplanner.ui.theme.TripPlannerAppTheme
 import com.tripplanner.ui.theme.green
 import com.tripplanner.ui.theme.white
@@ -29,13 +31,26 @@ import kotlin.time.Duration.Companion.seconds
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SplashScreen(navController: NavController) {
+    val context = LocalContext.current
+    val preferenceManager = remember {
+        TripPreference(context)
+    }
     LaunchedEffect(Unit) {
         delay(3.seconds)
-        navController.navigate(Screen.MainScreen.route) {
-            popUpTo(Screen.SplashScreen.route) {
-                inclusive = true
+        if(preferenceManager.getData("isLogin")) {
+            navController.navigate(Screen.MainScreen.route) {
+                popUpTo(Screen.SplashScreen.route) {
+                    inclusive = true
+                }
+            }
+        }else{
+            navController.navigate(Screen.LoginScreen.route) {
+                popUpTo(Screen.SplashScreen.route) {
+                    inclusive = true
+                }
             }
         }
+
     }
     TripPlannerAppTheme {
         Scaffold {
